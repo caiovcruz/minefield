@@ -48,7 +48,7 @@ main() {
       field.addNeighbor(fieldNeighbor2);
       field.addNeighbor(fieldNeighbor3);
 
-      expect(field.amountNeighborhoodMines, 2); 
+      expect(field.neighborhoodMinesQtt, 2); 
     });
   });
 }

@@ -76,7 +76,7 @@ class Field {
 
   bool get isMarked => _isMarked;
 
-  bool get solved {
+  bool get isSolved {
     bool minedAndMarked = isMined && isMarked;
     bool safeAndOpen = !isMined && isOpen;
     return minedAndMarked || safeAndOpen;
@@ -85,6 +85,6 @@ class Field {
   bool get safeNeighborhood =>
       neighbors.every((neighbor) => !neighbor._isMined);
 
-  int get amountNeighborhoodMines =>
+  int get neighborhoodMinesQtt =>
       neighbors.where((neighbor) => neighbor.isMined).length;
 }
