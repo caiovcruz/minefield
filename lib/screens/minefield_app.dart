@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:minefield/models/field.dart';
 
+import '../components/field_widget.dart';
 import '../components/result_widget.dart';
+import '../models/explosion_exception.dart';
 
 class MineFieldApp extends StatelessWidget {
   const MineFieldApp({Key? key}) : super(key: key);
@@ -9,8 +12,29 @@ class MineFieldApp extends StatelessWidget {
     print('restarting...');
   }
 
+  void _open(Field field) {
+    print('opening...');
+  }
+
+  void _toggleMark(Field field) {
+    print('marking...');
+  }
+
   @override
   Widget build(BuildContext context) {
+    Field fieldNeighbor = Field(row: 1, column: 0);
+    fieldNeighbor.mine();
+
+    Field field = Field(row: 0, column: 0);
+    field.addNeighbor(fieldNeighbor);
+
+    try {
+      // field.mine();
+      field.toggleMark();
+    } on ExplosionException catch (error) {
+      print(error);
+    }
+
     return MaterialApp(
       home: Scaffold(
         appBar: ResultWidget(
@@ -18,8 +42,11 @@ class MineFieldApp extends StatelessWidget {
           onRestart: _restart,
         ),
         body: Container(
-          alignment: Alignment.center,
-          child: const Text('GameBoard'),
+          child: FieldWidget(
+            field: field,
+            onOpen: _open,
+            onToggleMark: _toggleMark,
+          ),
         ),
       ),
     );
