@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:minefield/models/field.dart';
 
+import '../components/choose_difficulty_widget.dart';
 import '../components/gameboard_widget.dart';
 import '../components/result_widget.dart';
 import '../models/explosion_exception.dart';
@@ -16,15 +15,53 @@ class MineFieldApp extends StatefulWidget {
 }
 
 class _MineFieldAppState extends State<MineFieldApp> {
+  double? _difficulty;
   bool? _won;
-
   GameBoard? _gameBoard;
 
   void _restart() {
     setState(() {
       _won = null;
-      _gameBoard?.restart();
+      _gameBoard = null;
     });
+  }
+
+  Future<void> _changeDifficulty() async {
+    bool change = await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: const Text('Do you really want to change game difficulty?'),
+        contentPadding: const EdgeInsets.only(
+          left: 24.0,
+          top: 20.0,
+          right: 24.0,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                style: TextButton.styleFrom(primary: Colors.red),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (change) {
+      setState(() {
+        _difficulty = null;
+        _won = null;
+        _gameBoard = null;
+      });
+    }
   }
 
   void _open(Field field) {
@@ -109,7 +146,7 @@ class _MineFieldAppState extends State<MineFieldApp> {
   }
 
   GameBoard _getGameBoard(double width, double height) {
-    if (_gameBoard == null) {
+    if (_gameBoard == null && _difficulty != null) {
       int columnsQtt = 15;
       double fieldLength = width / columnsQtt;
       int rowsQtt = (height / fieldLength).floor();
@@ -117,35 +154,46 @@ class _MineFieldAppState extends State<MineFieldApp> {
       _gameBoard = GameBoard(
         rows: rowsQtt,
         columns: columnsQtt,
-        minesQtt: Random().nextInt(((rowsQtt * columnsQtt) / 3).ceil()),
+        minesQtt: ((rowsQtt * columnsQtt) / _difficulty!).ceil(),
       );
     }
 
     return _gameBoard!;
   }
 
+  void _onChooseDifficulty(double difficulty) {
+    setState(() {
+      _difficulty = difficulty;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: ResultWidget(
-        won: _won,
-        onRestart: _restart,
-      ),
-      body: Container(
-        color: Colors.grey,
-        child: LayoutBuilder(
-          builder: (ctx, constraints) {
-            return GameBoardWidget(
-              gameBoard: _getGameBoard(
-                constraints.maxWidth,
-                constraints.maxHeight,
+    return _difficulty == null
+        ? ChooseDifficultyWidget(
+            onChooseDifficulty: _onChooseDifficulty,
+          )
+        : Scaffold(
+            appBar: ResultWidget(
+              won: _won,
+              onRestart: _restart,
+              onChangeDifficulty: _changeDifficulty,
+            ),
+            body: Container(
+              color: Colors.grey,
+              child: LayoutBuilder(
+                builder: (ctx, constraints) {
+                  return GameBoardWidget(
+                    gameBoard: _getGameBoard(
+                      constraints.maxWidth,
+                      constraints.maxHeight,
+                    ),
+                    onOpen: _open,
+                    onToggleMark: _toggleMark,
+                  );
+                },
               ),
-              onOpen: _open,
-              onToggleMark: _toggleMark,
-            );
-          },
-        ),
-      ),
-    );
+            ),
+          );
   }
 }
