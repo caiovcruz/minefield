@@ -2,4 +2,4 @@ import 'package:flutter/material.dart';
 
 import 'screens/minefield_app.dart';
 
-void main() => runApp(const MineFieldApp());
+void main() => runApp(const MaterialApp(home: MineFieldApp()));

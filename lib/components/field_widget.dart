@@ -33,7 +33,7 @@ class FieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => onOpen(field),
-      onLongPress: () => onOpen(field),
+      onLongPress: () => onToggleMark(field),
       child: _getImage(),
     );
   }
